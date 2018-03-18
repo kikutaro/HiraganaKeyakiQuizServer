@@ -31,6 +31,12 @@ public class QuizController {
         return quiz.block();
     }
 
+    @GetMapping("quiz/member")
+    public Flux<Quiz> getMemberQuiz(@RequestParam(name="name") String name) {
+        Flux<Quiz> quiz = quizRepository.findByName(name);
+        return quiz;
+    }
+
     @GetMapping("quiz/random")
     public Quiz getRandomQuiz() {
         long count = quizRepository.count().block();
