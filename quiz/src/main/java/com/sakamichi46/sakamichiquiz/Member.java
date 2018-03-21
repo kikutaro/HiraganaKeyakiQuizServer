@@ -1,6 +1,7 @@
 package com.sakamichi46.sakamichiquiz;
 
 public enum Member {
+    ひらがなけやき2期生,
     金村美玖,
     河田陽菜,
     小坂菜緒,
