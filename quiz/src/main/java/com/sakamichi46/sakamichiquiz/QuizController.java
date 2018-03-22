@@ -2,6 +2,8 @@ package com.sakamichi46.sakamichiquiz;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.naming.ldap.StartTlsRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,9 @@ public class QuizController {
 
     @Autowired
     private AnswerRepository answerRepository;
+
+    @Autowired
+    private StatsRepository statsRepository;
 
     @GetMapping("/quiz/all")
     public Flux<Quiz> getQuiz() {
@@ -47,6 +52,23 @@ public class QuizController {
     @GetMapping("/quiz/answer")
     public Answer getAnswer(@RequestParam(name="no") int no, @RequestParam(name="answer") int ans) {
         Mono<Answer> answer = answerRepository.findByNoAndAnswer(no, ans);
+        Mono<Stats> stats = statsRepository.findById(no);
+
+        Stats stat = stats.block();
+        if(stat == null) {
+            stat = new Stats(no);
+        }
+        if(answer.block().isCorrect()) {
+            stat.countUpCorrect();
+        }
+        stat.countUpTotal();
+        statsRepository.save(stat).block();
+
         return answer.block();
+    }
+
+    @GetMapping("/quiz/stats")
+    public Mono<Stats> getAnswerStats(@RequestParam(name="no") int no) {
+        return statsRepository.findById(no);
     }
 }
